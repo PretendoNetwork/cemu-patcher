@@ -1,7 +1,7 @@
 // Forward Export all dbghelp functions
 
 // TODO: Don't hard-code System32 path
-/*
+
 // dbghelp.h
 #pragma comment(linker, "/export:EnumDirTree=C:\\Windows\\System32\\dbghelp.EnumDirTree")
 #pragma comment(linker, "/export:EnumDirTreeW=C:\\Windows\\System32\\dbghelp.EnumDirTreeW")
@@ -197,7 +197,6 @@
 #pragma comment(linker, "/export:UnDecorateSymbolName=C:\\Windows\\System32\\dbghelp.UnDecorateSymbolName")
 #pragma comment(linker, "/export:UnDecorateSymbolNameW=C:\\Windows\\System32\\dbghelp.UnDecorateSymbolNameW")
 #pragma comment(linker, "/export:UnmapDebugInformation=C:\\Windows\\System32\\dbghelp.UnmapDebugInformation")
-*/
 
 
 // minidumpapiset.h

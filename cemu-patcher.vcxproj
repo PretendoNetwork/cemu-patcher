@@ -148,6 +148,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="cemuhook_inject.cpp" />
     <ClCompile Include="dbg_forward.cpp" />
     <ClCompile Include="hook.cpp" />
     <ClCompile Include="main.cpp" />
@@ -156,6 +157,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="cemuhook_inject.h" />
     <ClInclude Include="hook.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>

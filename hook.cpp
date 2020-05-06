@@ -4,6 +4,7 @@
 #include <string>
 #include <windows.h>
 #include <detours.h>
+#include "cemuhook_inject.h"
 
 #pragma comment(lib, "WS2_32.lib")
 #pragma comment(lib, "detours.lib")
@@ -46,6 +47,11 @@ void InstallHook()
 	DetourUpdateThread(GetCurrentThread());
 	DetourAttach(&(PVOID&)getaddrinfo_original, getaddrinfo_hook);
 	DetourTransactionCommit();
+
+	if (cemuhook_exists())
+	{
+		inject_cemuhook();
+	}
 
 	MessageBox(NULL, "Installed hook", "Pretendo Cemu Patch", MB_OK);
 }
