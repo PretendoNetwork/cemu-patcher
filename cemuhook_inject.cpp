@@ -7,7 +7,7 @@
 bool cemuhook_exists()
 {
     char cemuhook_path[MAX_PATH];
-    GetFullPathName("cemuhook.dll", MAX_PATH, cemuhook_path, NULL);
+    GetFullPathName("true_cemuhook.dll", MAX_PATH, cemuhook_path, NULL);
 
 	return std::ifstream(cemuhook_path).good();
 }
@@ -22,7 +22,7 @@ void inject_cemuhook()
         MessageBox(NULL, "CemuHook found. Attempting injection. This is widely untested and not officially support by Rajkosto. Use at your own risk", "Warning", MB_ICONWARNING);
 
         char cemuhook_path[MAX_PATH];
-        GetFullPathName("cemuhook.dll", MAX_PATH, cemuhook_path, NULL);
+        GetFullPathName("true_cemuhook.dll", MAX_PATH, cemuhook_path, NULL);
 
         size_t cemuhook_path_size = strlen(cemuhook_path) + 1;
 
