@@ -92,7 +92,7 @@ void InstallHook()
 	VirtualProtect((LPVOID)address_ptr, length, old, nullptr);
 	// -------------------------------------------
 
-	// Check if "cemuhook.dll" exists
+	// Check if "true_cemuhook.dll" exists
 	// -------------------------------------------
 	if (cemuhook_exists())
 	{
