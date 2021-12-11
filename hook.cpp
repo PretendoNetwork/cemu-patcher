@@ -78,8 +78,6 @@ void InstallHook()
 
 	char buffer[29] = "http://c.account.pretendo.cc";
 
-	MessageBox(NULL, (char*)address_ptr, "test", MB_OK);
-
 	DWORD old;
 	VirtualProtect((LPVOID)address_ptr, length, PAGE_EXECUTE_READWRITE, &old);
 	memcpy((LPVOID)address_ptr, buffer, length);
@@ -103,7 +101,7 @@ void InstallHook()
 	}
 	// -------------------------------------------
 
-	MessageBox(NULL, "Installed hook", "Pretendo Cemu Patch", MB_OK);
+	//MessageBox(NULL, "Ready!", "Pretendo Cemu Patch", MB_OK);
 }
 // -------------------------------------------
 
