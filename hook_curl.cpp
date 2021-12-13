@@ -3,28 +3,19 @@
 #include <string>
 #include <iostream>
 
-
-bool cemuhook_exists()
-{
-    char cemuhook_path[MAX_PATH];
-    GetFullPathName("true_cemuhook.dll", MAX_PATH, cemuhook_path, NULL);
-
-	return std::ifstream(cemuhook_path).good();
-}
-
-void inject_cemuhook()
+void HookCurl()
 {
     DWORD current_process_id = GetCurrentProcessId();
     HANDLE cemu_process = OpenProcess(PROCESS_ALL_ACCESS, FALSE, current_process_id);
 
     if (cemu_process)
     {
-        MessageBox(NULL, "CemuHook found. Attempting injection. This is widely untested and not officially support by Rajkosto. Use at your own risk", "Warning", MB_ICONWARNING);
+        //MessageBox(NULL, "CemuHook found. Attempting injection. This is widely untested and not officially support by Rajkosto. Use at your own risk", "Warning", MB_ICONWARNING);
 
         char cemuhook_path[MAX_PATH];
-        GetFullPathName("true_cemuhook.dll", MAX_PATH, cemuhook_path, NULL);
+        GetFullPathName("CurlHook.dll", MAX_PATH, cemuhook_path, NULL);
 
-        size_t cemuhook_path_size = strlen(cemuhook_path) + 1;
+        long cemuhook_path_size = strlen(cemuhook_path) + 1;
 
         LPVOID cemuhook_memory = VirtualAllocEx(cemu_process, NULL, cemuhook_path_size, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
         if (cemuhook_memory == NULL)

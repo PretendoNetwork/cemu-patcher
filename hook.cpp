@@ -1,67 +1,134 @@
-// Handle the hooking
+
+// Handle Cemu function hooking
 
 #include <ws2tcpip.h>
 #include <string>
 #include <windows.h>
+#include <psapi.h>
+#include <cstring>
 #include <detours.h>
 #include "cemuhook_inject.h"
 
 #pragma comment(lib, "WS2_32.lib")
 #pragma comment(lib, "detours.lib")
 
-int (WSAAPI* getaddrinfo_original)(
-	PCSTR            pNodeName,
-	PCSTR            pServiceName,
-	const ADDRINFOA* pHints,
-	PADDRINFOA*      ppResult
-) = getaddrinfo;
+/*---------------------------------------
+|      Find unexported functions        |
+---------------------------------------*/
 
-int WSAAPI getaddrinfo_hook(
-	PCSTR            pNodeName,
-	PCSTR            pServiceName,
-	const ADDRINFOA* pHints,
-	PADDRINFOA* ppResult
-)
+// Search program memory for unexported function by signature
+// --------------------------------------------------------------------------------------
+DWORD_PTR FindUnexportedFunction(PBYTE signature, DWORD length)
 {
-	// Dirty check for Nintendo requests
-	std::string nintendDomain = "nintendo.net";
-	int nintendoCheck = std::string(pNodeName).find(nintendDomain);
-	if (nintendoCheck != std::string::npos)
+	// Get mod info
+	// -------------------------------------------
+	HMODULE hMod = GetModuleHandleA(NULL);
+	MODULEINFO modInfo = { NULL };
+
+	GetModuleInformation(GetCurrentProcess(), hMod, &modInfo, sizeof(modInfo));
+	// -------------------------------------------
+
+	// Search params
+	// -------------------------------------------
+	DWORD size = modInfo.SizeOfImage;
+	char* base = (char*)hMod;
+	// -------------------------------------------
+
+	// Loop over memory checking for signature
+	// -------------------------------------------
+	for (size_t i = 0; i < size; i++)
 	{
-		std::string text = "Redirecting Nintendo request: ";
-		text = text + pServiceName + "://" + pNodeName;
+		bool match = true;
+		for (size_t j = 0; j < length; j++)
+		{
+			// Read one byte and compare it to the signature
+			unsigned char memory_value;
+			std::memcpy(&memory_value, base + i + j, 1);
 
-		MessageBox(NULL, text.c_str(), "getaddrinfo", MB_OK);
+			// If any part of the memory does not match the sequence, fail
+			if (memory_value != signature[j])
+			{
+				match = false;
+			}
+		}
 
-		std::string pNewNodeName = std::string(pNodeName).replace(nintendoCheck, nintendDomain.length(), "pretendo.cc");
-
-		return getaddrinfo_original(pNewNodeName.c_str(), pServiceName, pHints, ppResult);
+		if (match)
+		{
+			// Return real address
+			return (DWORD_PTR)(base + i);
+		}
 	}
+	// -------------------------------------------
 
-	return getaddrinfo_original(pNodeName, pServiceName, pHints, ppResult);
+	// Return 0 if not found
+	return 0;
 }
 
+/*---------------------------------
+|      Replace URLS               |
+----------------------------------*/
+
+// -------------------------------------------
 void InstallHook()
 {
-	DetourTransactionBegin();
-	DetourUpdateThread(GetCurrentThread());
-	DetourAttach(&(PVOID&)getaddrinfo_original, getaddrinfo_hook);
-	DetourTransactionCommit();
+	PBYTE address = (PBYTE)"https://account.nintendo.net";
 
+	size_t length = 29 - 1;  //- 1 b/c of null
+	DWORD_PTR address_ptr = FindUnexportedFunction(address, length);
+
+	char buffer[29] = "http://c.account.pretendo.cc";
+
+	DWORD old;
+	VirtualProtect((LPVOID)address_ptr, length, PAGE_EXECUTE_READWRITE, &old);
+	memcpy((LPVOID)address_ptr, buffer, length);
+	VirtualProtect((LPVOID)address_ptr, length, old, nullptr);
+
+	//do it again b/c there's 2 account URLs in Cemu
+
+	address_ptr = FindUnexportedFunction(address, length); //- 1 b/c of null
+
+	VirtualProtect((LPVOID)address_ptr, length, PAGE_EXECUTE_READWRITE, &old);
+	memcpy((LPVOID)address_ptr, buffer, length);
+	VirtualProtect((LPVOID)address_ptr, length, old, nullptr);
+	// -------------------------------------------
+
+	// Check if "true_cemuhook.dll" exists
+	// -------------------------------------------
 	if (cemuhook_exists())
 	{
+		// Inject DLL if found
 		inject_cemuhook();
 	}
+	// -------------------------------------------
 
-	MessageBox(NULL, "Installed hook", "Pretendo Cemu Patch", MB_OK);
+	//MessageBox(NULL, "Ready!", "Pretendo Cemu Patch", MB_OK);
 }
+// -------------------------------------------
 
+/*---------------------------------
+|        Revert URL changes       |
+----------------------------------*/
+
+// -------------------------------------------
 void RemoveHook()
 {
-	DetourTransactionBegin();
-	DetourUpdateThread(GetCurrentThread());
-	DetourDetach(&(PVOID&)getaddrinfo_original, getaddrinfo_hook);
-	DetourTransactionCommit();
+	PBYTE address = (PBYTE)"http://c.account.pretendo.cc";
 
-	MessageBox(NULL, "Removed hook", "Pretendo Cemu Patch", MB_OK);
+	const size_t length = 29 - 1;
+	DWORD_PTR address_ptr = FindUnexportedFunction(address,length);
+
+	char buffer[29] = "https://account.nintendo.net";
+
+	DWORD old;
+	VirtualProtect((LPVOID)address_ptr, length, PAGE_EXECUTE_READWRITE, &old);
+	memcpy((LPVOID)address_ptr, buffer, length);
+	VirtualProtect((LPVOID)address_ptr, length, old, nullptr);
+
+	//do it again b/c there's 2 account URLs in Cemu
+	address_ptr = FindUnexportedFunction(address, length);
+
+	VirtualProtect((LPVOID)address_ptr, length, PAGE_EXECUTE_READWRITE, &old);
+	memcpy((LPVOID)address_ptr, buffer, length);
+	VirtualProtect((LPVOID)address_ptr, length, old, nullptr);
 }
+// -------------------------------------------

@@ -51,8 +51,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,0,2
- PRODUCTVERSION 1,0,0,0
+ FILEVERSION 0,5,7,3
+ PRODUCTVERSION 1,25,1,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -69,12 +69,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Pretendo"
             VALUE "FileDescription", "Pretendo Cemu patch"
-            VALUE "FileVersion", "1.0.0.2"
-            VALUE "InternalName", "dbghelp.dll"
-            VALUE "LegalCopyright", "Copyright (C) 2020 Pretendo Network"
-            VALUE "OriginalFilename", "dbghelp.dll"
+            VALUE "FileVersion", "0.5.7.3"
+            VALUE "InternalName", "cemuhook.dll"
+            VALUE "LegalCopyright", "Copyright (C) 2021 Pretendo Network"
+            VALUE "OriginalFilename", "cemuhook.dll"
             VALUE "ProductName", "Cemu Patch"
-            VALUE "ProductVersion", "1.0.0.0"
+            VALUE "ProductVersion", "1.25.1.0"
         END
     END
     BLOCK "VarFileInfo"
